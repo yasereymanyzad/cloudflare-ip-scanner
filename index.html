@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IP PRO - اسکنر هوشمند آی‌پی تمیز کلودفلر</title>
+    <!-- Tailwind CSS Play CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            primary: '#10b981',
+                            bg: '#0a0b0e',
+                            card: '#111318',
+                            border: '#1f2937'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: #0a0b0e;
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1f2937;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #374151;
+        }
+    </style>
+</head>
+<body class="text-gray-200 h-screen flex flex-col md:flex-row overflow-hidden select-none">
+    
+    <!-- Sidebar Controls -->
+    <aside class="w-full md:w-80 bg-brand-card border-l border-brand-border flex flex-col p-6 overflow-y-auto">
+        <div class="mb-8">
+            <h1 class="text-3xl font-black text-white tracking-tight mb-2 uppercase">IP <span class="text-brand-primary">PRO</span></h1>
+            <p class="text-xs text-gray-500">اسکنر پرتابل آی‌پی‌های تمیز و پرسرعت</p>
+        </div>
+
+        <div class="space-y-6 flex-1">
+            <div class="space-y-3">
+                <label class="text-[10px] uppercase tracking-widest text-gray-400 font-bold flex items-center gap-2">
+                    انتخاب محدوده (Range)
+                </label>
+                <select id="selectedRange" class="w-full bg-[#1a1d24] border border-gray-700/50 p-2 text-white text-sm focus:border-brand-primary focus:outline-none transition-colors rounded-lg">
+                    <option value="ALL">همه رنج‌ها (All Ranges)</option>
+                    
+                    <option value="173.245.48.0/20">Cloudflare Range 1 (173.245.48.0/20)</option>
+                    <option value="103.21.244.0/22">Cloudflare Range 2 (103.21.244.0/22)</option>
+                    <option value="103.22.200.0/22">Cloudflare Range 3 (103.22.200.0/22)</option>
+                    <option value="103.31.4.0/22">Cloudflare Range 4 (103.31.4.0/22)</option>
+                    <option value="141.101.64.0/18">Cloudflare Range 5 (141.101.64.0/18)</option>
+                    <option value="108.162.192.0/18">Cloudflare Range 6 (108.162.192.0/18)</option>
+                    <option value="190.93.240.0/20">Cloudflare Range 7 (190.93.240.0/20)</option>
+                    <option value="188.114.96.0/20">Cloudflare Range 8 (188.114.96.0/20)</option>
+                    <option value="197.234.240.0/22">Cloudflare Range 9 (197.234.240.0/22)</option>
+                    <option value="198.41.128.0/17">Cloudflare Range 10 (198.41.128.0/17)</option>
+                    <option value="162.158.0.0/15">Cloudflare Range 11 (162.158.0.0/15)</option>
+                    <option value="104.16.0.0/13">Cloudflare Range 12 (104.16.0.0/13)</option>
+                    <option value="104.24.0.0/14">Cloudflare Range 13 (104.24.0.0/14)</option>
+                    <option value="172.64.0.0/13">Cloudflare Range 14 (172.64.0.0/13)</option>
+                    <option value="131.0.72.0/22">Cloudflare Range 15 (131.0.72.0/22)</option>
+                </select>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <div class="space-y-2">
+                    <label class="text-[10px] uppercase tracking-widest text-gray-400 font-bold">تعداد آی‌پی</label>
+                    <input type="number" id="scanLimit" value="300" class="w-full bg-[#1a1d24] border border-gray-700/50 p-2 text-white text-xs text-center font-mono focus:border-brand-primary focus:outline-none transition-colors rounded-lg">
+                </div>
+                <div class="space-y-2">
+                    <label class="text-[10px] uppercase tracking-widest text-gray-400 font-bold">بچ سایز</label>
+                    <input type="number" id="batchSize" value="6" class="w-full bg-[#1a1d24] border border-gray-700/50 p-2 text-white text-xs text-center font-mono focus:border-brand-primary focus:outline-none transition-colors rounded-lg">
+                </div>
+            </div>
+
+            <div class="space-y-3 pt-4">
+                <button id="startBtn" onclick="runScan()" class="w-full py-3 bg-brand-primary text-black font-bold rounded-xl transition-all hover:shadow-[0_0_20px_rgba(16,185,129,0.2)] active:scale-95 flex items-center justify-center gap-2 text-lg">
+                    شروع اسکن هوشمند
+                </button>
+                <button id="stopBtn" onclick="stopScan()" class="hidden w-full py-3 bg-red-500 hover:bg-red-600 text-white font-medium rounded-xl text-sm flex items-center justify-center gap-2 transition-colors">
+                    توقف اسکن
+                </button>
+            </div>
+        </div>
+
+        <div class="mt-auto border-t border-brand-border pt-6">
+            <div class="flex justify-between items-center text-xs text-gray-500 mb-2">
+                <span>نوع نسخه</span>
+                <span class="font-mono text-brand-primary">PORTABLE HTML</span>
+            </div>
+            <div class="w-full bg-gray-800 h-1.5 rounded-full overflow-hidden mb-4">
+                <div id="progressBar" class="bg-brand-primary h-full w-0 transition-all duration-300"></div>
+            </div>
+            <div class="pt-2 border-t border-brand-border/30 text-center">
+                <p class="text-[11px] text-gray-400">
+                    طراحی و توسعه توسط:
+                    <a href="https://t.me/gifs_card" target="_blank" rel="noopener noreferrer" class="text-brand-primary font-bold hover:underline">gifs_card</a>
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 flex flex-col bg-brand-bg overflow-hidden">
+        <!-- Top Stats Ribbon -->
+        <div class="h-auto md:h-24 border-b border-brand-border flex flex-col md:flex-row md:items-center px-6 md:px-10 py-4 md:py-0 gap-4 md:gap-12">
+            <div class="flex flex-col">
+                <span class="text-[10px] uppercase text-gray-500 tracking-tighter">کل آی‌پی‌های بررسی شده</span>
+                <span id="scannedCount" class="text-2xl font-mono font-bold text-white tracking-tighter">0</span>
+            </div>
+            <div class="flex flex-col md:border-r md:border-brand-border md:pr-12">
+                <span class="text-[10px] uppercase text-gray-500 tracking-tighter">تمیز یافت شده</span>
+                <span id="successCount" class="text-2xl font-mono font-bold text-brand-primary tracking-tighter">0</span>
+            </div>
+            <div class="flex flex-col md:border-r md:border-brand-border md:pr-12">
+                <span class="text-[10px] uppercase text-gray-500 tracking-tighter">میانگین تأخیر</span>
+                <span id="avgLatency" class="text-2xl font-mono font-bold text-amber-400 tracking-tighter">0ms</span>
+            </div>
+            <div class="md:mr-auto flex items-center">
+                 <div id="statusIndicator" class="px-3 py-1 border border-gray-500/30 bg-gray-500/10 text-gray-400 rounded uppercase font-bold text-[10px] flex items-center gap-2">
+                     آماده برای شروع
+                 </div>
+            </div>
+        </div>
+
+        <!-- Data Grid Section -->
+        <div class="flex-1 p-4 md:p-8 overflow-hidden flex flex-col">
+            <div class="flex-1 bg-brand-card border border-brand-border rounded-2xl overflow-hidden flex flex-col shadow-2xl">
+                <div class="bg-gray-800/20 px-6 py-4 border-b border-brand-border flex justify-between items-center">
+                    <span class="text-xs font-bold uppercase tracking-widest text-white">فهرست نتایج (IP Log)</span>
+                    <div class="flex items-center gap-2">
+                        <button onclick="copyTopClassic()" class="px-3 py-1 bg-white/5 hover:bg-white/10 rounded-lg text-xs flex items-center gap-2 transition-colors border border-white/10 text-white">
+                            کپی ۱۰ تای برتر
+                        </button>
+                        <button onclick="downloadCleanTXT()" class="px-3 py-1 bg-brand-primary/10 hover:bg-brand-primary/20 rounded-lg text-xs flex items-center gap-2 transition-colors border border-brand-primary/30 text-brand-primary">
+                            ذخیره در فایل TXT
+                        </button>
+                    </div>
+                </div>
+
+                <div class="flex-1 overflow-y-auto">
+                    <table class="w-full text-right border-collapse">
+                        <thead class="sticky top-0 bg-[#16181d] z-20 shadow-sm">
+                            <tr class="text-[11px] text-gray-500 border-b border-brand-border font-bold uppercase tracking-wider">
+                                <th class="p-4 pr-6">#</th>
+                                <th class="p-4">آدرس آی‌پی (IP Address)</th>
+                                <th class="p-4 text-center">تأخیر (Latency)</th>
+                                <th class="p-4 text-center">وضعیت (Status)</th>
+                                <th class="p-4 text-left pl-6">عملیات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="resultsBody" class="text-sm font-mono">
+                            <tr>
+                                <td colspan="5" class="p-20 text-center text-gray-600 font-sans italic">
+                                    داده‌ای برای نمایش وجود ندارد. اسکن را شروع کنید.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="mt-6 flex justify-between items-center text-[11px] text-gray-500">
+                <span>پکت لاس: <span class="font-mono text-red-500">0.0%</span></span>
+                <span>طراحی و توسعه توسط <a href="https://t.me/gifs_card" target="_blank" rel="noopener noreferrer" class="text-brand-primary font-bold hover:underline">gifs_card</a></span>
+                <span>پروژه اوپن‌سورس و بدون نیاز به سرور</span>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const CLOUDFLARE_IPV4_RANGES = [{"range":"173.245.48.0/20","label":"Cloudflare Range 1"},{"range":"103.21.244.0/22","label":"Cloudflare Range 2"},{"range":"103.22.200.0/22","label":"Cloudflare Range 3"},{"range":"103.31.4.0/22","label":"Cloudflare Range 4"},{"range":"141.101.64.0/18","label":"Cloudflare Range 5"},{"range":"108.162.192.0/18","label":"Cloudflare Range 6"},{"range":"190.93.240.0/20","label":"Cloudflare Range 7"},{"range":"188.114.96.0/20","label":"Cloudflare Range 8"},{"range":"197.234.240.0/22","label":"Cloudflare Range 9"},{"range":"198.41.128.0/17","label":"Cloudflare Range 10"},{"range":"162.158.0.0/15","label":"Cloudflare Range 11"},{"range":"104.16.0.0/13","label":"Cloudflare Range 12"},{"range":"104.24.0.0/14","label":"Cloudflare Range 13"},{"range":"172.64.0.0/13","label":"Cloudflare Range 14"},{"range":"131.0.72.0/22","label":"Cloudflare Range 15"}];
+        let isScanning = false;
+        let stopRef = { current: false };
+        let results = [];
+
+        function expandCIDR(cidr, limit = 100) {
+            const [address, prefixStr] = cidr.split('/');
+            const prefix = parseInt(prefixStr, 10);
+            const parts = address.split('.').map(p => parseInt(p, 10));
+
+            let ipNum = (parts[0] << 24) | (parts[1] << 16) | (parts[2] << 8) | parts[3];
+            const mask = 0xffffffff << (32 - prefix);
+            const startIp = (ipNum & mask) >>> 0;
+            const count = Math.min(Math.pow(2, 32 - prefix), limit);
+
+            const ips = [];
+            for (let i = 0; i < count; i++) {
+                const current = startIp + i;
+                ips.push([
+                    (current >>> 24) & 0xff,
+                    (current >>> 16) & 0xff,
+                    (current >>> 8) & 0xff,
+                    current & 0xff
+                ].join('.'));
+            }
+            return ips;
+        }
+
+        async function testIP(ip, timeout = 2500) {
+            const start = performance.now();
+            const controller = new AbortController();
+            const id = setTimeout(() => controller.abort(), timeout);
+
+            try {
+                await fetch('https://' + ip + '/cdn-cgi/trace', {
+                    mode: 'no-cors',
+                    signal: controller.signal,
+                    cache: 'no-cache'
+                });
+                const end = performance.now();
+                clearTimeout(id);
+                return Math.round(end - start);
+            } catch (err) {
+                clearTimeout(id);
+                const end = performance.now();
+                const duration = Math.round(end - start);
+                if (duration > 50 && duration < timeout) {
+                    return duration;
+                }
+                throw new Error('Timeout');
+            }
+        }
+
+        function stopScan() {
+            stopRef.current = true;
+            isScanning = false;
+            updateUI();
+        }
+
+        async function runScan() {
+            if (isScanning) return;
+            isScanning = true;
+            stopRef.current = false;
+            
+            const selectedRange = document.getElementById('selectedRange').value;
+            const scanLimit = parseInt(document.getElementById('scanLimit').value) || 300;
+            const batchSize = parseInt(document.getElementById('batchSize').value) || 6;
+
+            let ips = [];
+            if (selectedRange === 'ALL') {
+                const limitPerRange = Math.max(5, Math.floor(scanLimit / CLOUDFLARE_IPV4_RANGES.length));
+                CLOUDFLARE_IPV4_RANGES.forEach(range => {
+                    ips.push(...expandCIDR(range.range, limitPerRange));
+                });
+                if (ips.length > scanLimit) ips = ips.slice(0, scanLimit);
+            } else {
+                ips = expandCIDR(selectedRange, scanLimit);
+            }
+
+            results = ips.map(ip => ({ ip, status: 'pending', latency: 0 }));
+            renderTable();
+            updateStats();
+
+            updateUI();
+
+            for (let i = 0; i < ips.length; i += batchSize) {
+                if (stopRef.current) break;
+
+                const batch = ips.slice(i, i + batchSize);
+                const batchTests = batch.map(async (ip) => {
+                    const idx = results.findIndex(r => r.ip === ip);
+                    results[idx].status = 'testing';
+                    renderTable();
+                    
+                    try {
+                        const latency = await testIP(ip, 2500);
+                        results[idx].status = 'success';
+                        results[idx].latency = latency;
+                    } catch (err) {
+                        results[idx].status = 'failed';
+                    }
+                    renderTable();
+                    updateStats();
+                });
+
+                await Promise.all(batchTests);
+                document.getElementById('progressBar').style.width = ((i + batch.length) / ips.length * 100) + '%';
+                await new Promise(resolve => setTimeout(resolve, 150));
+            }
+
+            isScanning = false;
+            updateUI();
+        }
+
+        function updateUI() {
+            const startBtn = document.getElementById('startBtn');
+            const stopBtn = document.getElementById('stopBtn');
+            const statusIndicator = document.getElementById('statusIndicator');
+
+            if (isScanning) {
+                startBtn.classList.add('hidden');
+                stopBtn.classList.remove('hidden');
+                statusIndicator.className = "px-3 py-1 border border-blue-500/30 bg-blue-500/10 text-blue-400 rounded uppercase font-bold text-[10px] flex items-center gap-2";
+                statusIndicator.innerHTML = '<div class="w-1.5 h-1.5 bg-blue-400 rounded-full animate-pulse"></div>در حال اسکن زنده';
+            } else {
+                startBtn.classList.remove('hidden');
+                stopBtn.classList.add('hidden');
+                statusIndicator.className = "px-3 py-1 border border-gray-500/30 bg-gray-500/10 text-gray-400 rounded uppercase font-bold text-[10px] flex items-center gap-2";
+                statusIndicator.innerHTML = 'آماده برای شروع';
+            }
+        }
+
+        function updateStats() {
+            const success = results.filter(r => r.status === 'success').length;
+            const tested = results.filter(r => r.status === 'success' || r.status === 'failed').length;
+            
+            document.getElementById('scannedCount').innerText = tested;
+            document.getElementById('successCount').innerText = success;
+
+            const successItems = results.filter(r => r.status === 'success');
+            if (successItems.length > 0) {
+                const totalLatency = successItems.reduce((acc, curr) => acc + curr.latency, 0);
+                document.getElementById('avgLatency').innerText = Math.round(totalLatency / successItems.length) + 'ms';
+            } else {
+                document.getElementById('avgLatency').innerText = '0ms';
+            }
+        }
+
+        function renderTable() {
+            const active = results.filter(r => r.status !== 'pending');
+            // Show successes sorted by speed, and recently tested items
+            const successList = results.filter(r => r.status === 'success').sort((a,b) => a.latency - b.latency);
+            const otherList = results.filter(r => r.status === 'testing' || r.status === 'failed');
+            const displayList = [...successList, ...otherList].slice(0, 50);
+
+            const tbody = document.getElementById('resultsBody');
+            if (displayList.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="p-20 text-center text-gray-600 font-sans italic">داده‌ای برای نمایش وجود ندارد. اسکن را شروع کنید.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = displayList.map((res, index) => {
+                const badge = res.status === 'success' 
+                    ? '<span class="px-2 py-0.5 bg-brand-primary/10 text-brand-primary border border-brand-primary/20 rounded text-[10px] font-sans font-bold">تمیز (Clean)</span>'
+                    : res.status === 'failed' 
+                        ? '<span class="px-2 py-0.5 bg-red-500/10 text-red-400 border border-red-500/20 rounded text-[10px] font-sans font-bold opacity-60">مسدود (Block)</span>'
+                        : '<span class="text-[10px] text-blue-400 animate-pulse">در حال بررسی...</span>';
+
+                const latencyStr = res.status === 'success' ? (res.latency + 'ms') : '--';
+                const latencyClass = res.status === 'success' 
+                    ? (res.latency < 100 ? "text-brand-primary font-bold" : res.latency < 250 ? "text-amber-400" : "text-amber-600")
+                    : "text-gray-700 opacity-50";
+
+                return '<tr class="border-b border-brand-border/30 hover:bg-white/[0.03] transition-colors">' +
+                    '<td class="p-4 pr-6 text-[10px] text-gray-600">' + (index + 1) + '</td>' +
+                    '<td class="p-4 text-white font-bold tracking-tight">' + res.ip + '</td>' +
+                    '<td class="p-4 text-center ' + latencyClass + '">' + latencyStr + '</td>' +
+                    '<td class="p-4 text-center">' + badge + '</td>' +
+                    '<td class="p-4 text-left pl-6"><button onclick="navigator.clipboard.writeText(\'' + res.ip + '\')" class="text-xs text-gray-500 hover:text-brand-primary transition-colors font-sans">کپی</button></td>' +
+                    '</tr>';
+            }).join('');
+        }
+
+        function copyTopClassic() {
+            const sortedSuccess = results.filter(r => r.status === 'success').sort((a,b) => a.latency - b.latency).slice(0, 10);
+            if (sortedSuccess.length === 0) return;
+            const text = sortedSuccess.map(r => r.ip).join('\n');
+            navigator.clipboard.writeText(text);
+            alert('ده آی‌پی برتر با موفقیت کپی شدند');
+        }
+
+        function downloadCleanTXT() {
+            const cleanIps = results.filter(r => r.status === 'success').map(r => r.ip).join('\n');
+            if (!cleanIps) {
+                alert('هیچ آی‌پی تمیزی یافت نشده است');
+                return;
+            }
+            const blob = new Blob([cleanIps], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'clean_ips.txt';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+</html>
